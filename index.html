@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="h-full select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>أبطال السوروبان - أصدقاء العدد 5 الصغار</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Fredoka -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fffbe1',
+                            100: '#fff3b8',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        number: ['Fredoka', 'Cairo', 'sans-serif']
+                    },
+                    animation: {
+                        'bounce-short': 'bounce 0.4s ease-in-out 1',
+                        'pulse-fast': 'pulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .number-font {
+            font-family: 'Fredoka', 'Cairo', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.92);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-3d {
+            transition: all 0.08s ease-in-out;
+            box-shadow: 0 4px 0 var(--tw-shadow-color);
+        }
+        .btn-3d:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--tw-shadow-color);
+        }
+
+        .bead-group {
+            transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.4, 1);
+            cursor: grab;
+            touch-action: none;
+        }
+        .bead-group:active {
+            cursor: grabbing;
+        }
+        .bead-shape {
+            transition: fill 0.15s, stroke 0.15s;
+        }
+
+        .mobile-height-fit {
+            min-height: calc(100vh - 70px);
+        }
+
+        .opt-btn-active {
+            border-color: #f59e0b !important;
+            background-color: #fef3c7 !important;
+            color: #b45309 !important;
+            font-weight: 800 !important;
+        }
+        .dark .opt-btn-active {
+            background-color: #78350f !important;
+            color: #fef3c7 !important;
+            border-color: #f59e0b !important;
+        }
+    </style>
+</head>
+<body class="bg-amber-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-300 font-cairo">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 w-full glass-card border-b border-amber-200 dark:border-slate-800 px-3 py-2 shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="app.showHome()">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+                    <i data-lucide="calculator" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base md:text-lg text-amber-600 dark:text-amber-400 leading-tight">أبطال السوروبان</h1>
+                    <p class="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-bold">RH MAS - أصدقاء العدد 5 الصغار</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button onclick="app.toggleSound()" id="sound-btn" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="volume-2" class="w-4 h-4"></i>
+                </button>
+                <button onclick="app.toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-2 sm:p-4 flex flex-col justify-center items-center">
+        
+        <!-- SCREEN 1: Home & Setup Screen -->
+        <section id="screen-home" class="w-full flex flex-col items-center gap-4 py-2 animate-fade-in max-w-xl">
+            <!-- Banner -->
+            <div class="w-full text-center bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 text-white rounded-3xl p-4 sm:p-5 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl"></div>
+                <span class="inline-block px-3 py-0.5 bg-white/20 rounded-full text-[11px] font-extrabold mb-1">المستوى الأول: متممات العدد 5</span>
+                <h2 class="text-xl sm:text-2xl font-black mb-1">مرحباً بك يا بطل الحساب الذهني! 🧠✨</h2>
+                <p class="text-purple-100 text-xs sm:text-sm">اختر قاعدتك المفضلة، أو جرب مرحلة خلط جميع القواعد!</p>
+            </div>
+
+            <!-- Configuration Form -->
+            <div class="w-full glass-card rounded-3xl p-4 sm:p-5 shadow-md space-y-3.5">
+                
+                <!-- 1. Difficulty Selector -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+                        <i data-lucide="gauge" class="w-4 h-4 text-purple-500"></i>
+                        مستوى الصعوبة:
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="app.setDifficulty('easy')" id="diff-easy" class="diff-btn py-2 px-1 rounded-2xl border-2 font-black text-xs flex flex-col items-center gap-0.5 transition-all">
+                            <span>🌱 سهل</span>
+                            <span class="text-[9px] font-normal opacity-75">(أرقام بسيطة)</span>
+                        </button>
+                        <button type="button" onclick="app.setDifficulty('medium')" id="diff-medium" class="diff-btn py-2 px-1 rounded-2xl border-2 font-black text-xs flex flex-col items-center gap-0.5 transition-all">
+                            <span>⚡ متوسط</span>
+                            <span class="text-[9px] font-normal opacity-75">(متوازن)</span>
+                        </button>
+                        <button type="button" onclick="app.setDifficulty('hard')" id="diff-hard" class="diff-btn py-2 px-1 rounded-2xl border-2 font-black text-xs flex flex-col items-center gap-0.5 transition-all">
+                            <span>🔥 صعب</span>
+                            <span class="text-[9px] font-normal opacity-75">(سريع)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Rules & Phases Selection (5 Phases including All-Mix) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+                        اختر مرحلة التدريب:
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
+                        <button type="button" onclick="app.setRule('+4')" id="rule-+4" class="rule-btn p-2 rounded-2xl border-2 text-right transition-all flex flex-col justify-between">
+                            <span class="font-black text-xs text-amber-600 dark:text-amber-400">قاعدة (+4)</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400 font-semibold">+4 = +5 - 1</span>
+                        </button>
+                        <button type="button" onclick="app.setRule('+3')" id="rule-+3" class="rule-btn p-2 rounded-2xl border-2 text-right transition-all flex flex-col justify-between">
+                            <span class="font-black text-xs text-emerald-600 dark:text-emerald-400">قاعدة (+3)</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400 font-semibold">+3 = +5 - 2</span>
+                        </button>
+                        <button type="button" onclick="app.setRule('+2')" id="rule-+2" class="rule-btn p-2 rounded-2xl border-2 text-right transition-all flex flex-col justify-between">
+                            <span class="font-black text-xs text-blue-600 dark:text-blue-400">قاعدة (+2)</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400 font-semibold">+2 = +5 - 3</span>
+                        </button>
+                        <button type="button" onclick="app.setRule('+1')" id="rule-+1" class="rule-btn p-2 rounded-2xl border-2 text-right transition-all flex flex-col justify-between">
+                            <span class="font-black text-xs text-purple-600 dark:text-purple-400">قاعدة (+1)</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400 font-semibold">+1 = +5 - 4</span>
+                        </button>
+                    </div>
+                    <!-- Phase 5: MIX ALL RULES -->
+                    <button type="button" onclick="app.setRule('mix')" id="rule-mix" class="rule-btn w-full p-2.5 rounded-2xl border-2 text-right transition-all flex items-center justify-between bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-indigo-500/10">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">🌈</span>
+                            <div>
+                                <span class="font-black text-xs text-indigo-600 dark:text-indigo-400 block">مرحلة خلط القواعد (المزيج الشامل)</span>
+                                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">تضم تمارين متنوعة تجمع بين القواعد الأربعة (+4, +3, +2, +1)</span>
+                            </div>
+                        </div>
+                        <i data-lucide="layers" class="w-4 h-4 text-indigo-500"></i>
+                    </button>
+                </div>
+
+                <!-- 3. Time Duration Selection -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+                        <i data-lucide="clock" class="w-4 h-4 text-blue-500"></i>
+                        الوقت المخصص للجلسة:
+                    </label>
+                    <div class="grid grid-cols-2 gap-2 bg-amber-50/60 dark:bg-slate-800/60 p-2 rounded-2xl border border-amber-200/50 dark:border-slate-700">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">🧮 وضع المعداد:</span>
+                            <div class="grid grid-cols-3 gap-1">
+                                <button type="button" onclick="app.setAbacusTime(3)" id="atime-3" class="atime-btn py-1 px-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">3 د</button>
+                                <button type="button" onclick="app.setAbacusTime(4)" id="atime-4" class="atime-btn py-1 px-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">4 د</button>
+                                <button type="button" onclick="app.setAbacusTime(5)" id="atime-5" class="atime-btn py-1 px-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">5 د</button>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">⚡ وضع الخيال (Flash):</span>
+                            <div class="grid grid-cols-3 gap-1">
+                                <button type="button" onclick="app.setAnzanTime(1)" id="ftime-1" class="ftime-btn py-1 px-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">1 د</button>
+                                <button type="button" onclick="app.setAnzanTime(2)" id="ftime-2" class="ftime-btn py-1 px-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">2 د</button>
+                                <button type="button" onclick="app.setAnzanTime(3)" id="ftime-3" class="ftime-btn py-1 px-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">3 د</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Session Size & Step Count -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="bg-amber-50/60 dark:bg-slate-800/60 p-2.5 rounded-2xl border border-amber-200/50 dark:border-slate-700">
+                        <label class="font-bold text-xs text-slate-700 dark:text-slate-300 block mb-1 flex items-center gap-1">
+                            <i data-lucide="list-checks" class="w-3.5 h-3.5 text-emerald-500"></i>
+                            عدد تمارين الجلسة:
+                        </label>
+                        <div class="grid grid-cols-3 gap-1">
+                            <button type="button" onclick="app.setTotalTasks(10)" id="tasks-10" class="task-btn py-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">10</button>
+                            <button type="button" onclick="app.setTotalTasks(20)" id="tasks-20" class="task-btn py-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">20</button>
+                            <button type="button" onclick="app.setTotalTasks(30)" id="tasks-30" class="task-btn py-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">30</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50/60 dark:bg-slate-800/60 p-2.5 rounded-2xl border border-amber-200/50 dark:border-slate-700 flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <label class="font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                                <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-500"></i>
+                                طول المسألة:
+                            </label>
+                            <span id="step-count-display" class="font-black text-xs text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950 px-2 py-0.5 rounded-lg">3 أرقام</span>
+                        </div>
+                        <input type="range" id="step-count-slider" min="3" max="9" value="3" step="1" oninput="app.updateStepCount(this.value)" class="w-full accent-amber-500 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg mt-1">
+                    </div>
+                </div>
+
+                <!-- Mode Selection -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div onclick="app.startGame('abacus')" class="cursor-pointer rounded-2xl p-3.5 bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md hover:shadow-orange-500/20 active:scale-[0.98] transition-all">
+                        <div class="flex justify-between items-center mb-0.5">
+                            <span class="text-xl">🧮</span>
+                            <span id="abacus-mode-tag" class="text-[10px] font-black bg-white/20 px-2 py-0.5 rounded-full">⏱️ 3 دقائق</span>
+                        </div>
+                        <h3 class="text-base font-black">وضع المعداد</h3>
+                        <p class="text-[11px] text-orange-100 font-semibold">حل المسائل عمودياً وسحب خرز المعداد لتمثيل الأرقام.</p>
+                    </div>
+
+                    <div onclick="app.startGame('anzan')" class="cursor-pointer rounded-2xl p-3.5 bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-md hover:shadow-purple-500/20 active:scale-[0.98] transition-all">
+                        <div class="flex justify-between items-center mb-0.5">
+                            <span class="text-xl">⚡</span>
+                            <span id="anzan-mode-tag" class="text-[10px] font-black bg-white/20 px-2 py-0.5 rounded-full">⏱️ 1 دقيقة</span>
+                        </div>
+                        <h3 class="text-base font-black">وضع الخيال (Anzan)</h3>
+                        <p class="text-[11px] text-purple-100 font-semibold">تخيّل المعداد وانظر للأرقام المتتالية بسرعة تضمن تركيزك.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SCREEN 2: Active Gameplay Screen -->
+        <section id="screen-game" class="w-full hidden flex-col items-center gap-2 max-w-lg mx-auto mobile-height-fit justify-between">
+            
+            <!-- Game Top Header -->
+            <div class="w-full flex items-center justify-between glass-card px-3 py-2 rounded-2xl shadow-sm">
+                <button onclick="app.confirmQuit()" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs flex items-center gap-1 hover:bg-red-50 hover:text-red-600 transition">
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    <span>إنهاء</span>
+                </button>
+
+                <div class="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-black bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-1 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                    <i data-lucide="list-todo" class="w-3.5 h-3.5"></i>
+                    <span class="number-font text-xs"><span id="curr-task-num">1</span>/<span id="total-task-num">10</span></span>
+                </div>
+
+                <div class="flex items-center gap-1.5 font-black text-slate-700 dark:text-slate-200 bg-amber-100 dark:bg-slate-800 px-3 py-1 rounded-xl border border-amber-200 dark:border-slate-700">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 animate-pulse"></i>
+                    <span id="game-timer" class="number-font text-sm">03:00</span>
+                </div>
+
+                <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                    <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+                    <span id="game-score" class="number-font text-sm">0</span>
+                </div>
+            </div>
+
+            <!-- Middle Play Area -->
+            <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto">
+                
+                <!-- Question Card -->
+                <div class="glass-card rounded-2xl p-3 shadow-md border border-amber-100 dark:border-slate-800 flex flex-col items-center justify-center min-h-[160px] relative">
+                    <div class="absolute top-2 right-3 flex items-center gap-1 text-[10px] font-extrabold text-slate-400">
+                        <span id="game-mode-badge" class="bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 px-2 py-0.5 rounded-full">معداد</span>
+                        <span id="game-rule-badge" class="bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 px-2 py-0.5 rounded-full">+4</span>
+                    </div>
+
+                    <!-- Vertical Math Display -->
+                    <div id="vertical-math-container" class="my-2 flex flex-col items-center justify-center">
+                        <div id="vertical-numbers-list" class="flex flex-col items-end number-font text-3xl sm:text-4xl font-black text-slate-800 dark:text-slate-100 tracking-wider space-y-1 border-b-4 border-slate-800 dark:border-slate-200 pb-1 px-6 min-w-[110px]">
+                        </div>
+                    </div>
+
+                    <!-- Flash Anzan Display -->
+                    <div id="anzan-math-container" class="hidden my-4 flex flex-col items-center justify-center">
+                        <div id="anzan-number-display" class="number-font text-6xl font-black text-purple-600 dark:text-purple-400">
+                            جاهز؟
+                        </div>
+                        <div id="anzan-progress" class="text-[10px] font-bold text-slate-400 mt-2">
+                            الرقم <span id="anzan-step-curr">1</span> من <span id="anzan-step-total">3</span>
+                        </div>
+                    </div>
+
+                    <!-- User Answer Box -->
+                    <div class="mt-2 flex items-center justify-center w-full">
+                        <div id="user-answer-box" class="w-36 h-10 bg-slate-100 dark:bg-slate-900 border-2 border-dashed border-amber-400 dark:border-amber-500 rounded-xl flex items-center justify-center number-font text-2xl font-black text-slate-800 dark:text-slate-100 shadow-inner">
+                            <span class="text-slate-400 dark:text-slate-600 text-xs font-normal font-cairo">الإجابة...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Soroban -->
+                <div class="glass-card rounded-2xl p-2 shadow-md border border-amber-100 dark:border-slate-800 flex flex-col items-center justify-between">
+                    <div class="flex justify-between items-center w-full px-2 mb-1">
+                        <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                            <span>🧮</span> اسحب الخرز للأسفل والأعلى
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="app.useAbacusValue()" title="نسخ قيمة المعداد كإجابة" class="text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 px-2 py-0.5 rounded-lg border border-amber-300 dark:border-amber-700 active:scale-95 transition">
+                                📥 اعتد بالقيمة: <span id="abacus-calc-val" class="number-font font-black">0</span>
+                            </button>
+                            <button onclick="app.resetAbacusBeads()" class="text-[10px] font-bold text-rose-600 dark:text-rose-400 hover:underline">
+                                تصفير 🔄
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="w-full flex justify-center items-center py-1 bg-amber-100/60 dark:bg-slate-900/80 rounded-xl border border-amber-200/80 dark:border-slate-800 touch-none">
+                        <svg id="soroban-svg" width="240" height="150" viewBox="0 0 240 150" class="select-none touch-none">
+                            <rect x="2" y="2" width="236" height="146" rx="8" fill="none" stroke="#78350f" stroke-width="6"/>
+                            <line x1="2" y1="44" x2="238" y2="44" stroke="#78350f" stroke-width="6"/>
+                            
+                            <circle cx="180" cy="44" r="2" fill="#ffffff"/>
+                            <circle cx="120" cy="44" r="2" fill="#ffffff"/>
+                            <circle cx="60" cy="44" r="2" fill="#ffffff"/>
+
+                            <line x1="60" y1="2" x2="60" y2="148" stroke="#94a3b8" stroke-width="3"/>
+                            <line x1="120" y1="2" x2="120" y2="148" stroke="#94a3b8" stroke-width="3"/>
+                            <line x1="180" y1="2" x2="180" y2="148" stroke="#94a3b8" stroke-width="3"/>
+
+                            <g id="abacus-beads-container"></g>
+                        </svg>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Kids On-Screen Numpad -->
+            <div class="w-full glass-card rounded-2xl p-2.5 shadow-md">
+                <div class="grid grid-cols-3 gap-1.5 max-w-xs mx-auto">
+                    <button onclick="app.numpadPress(1)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">1</button>
+                    <button onclick="app.numpadPress(2)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">2</button>
+                    <button onclick="app.numpadPress(3)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">3</button>
+                    
+                    <button onclick="app.numpadPress(4)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">4</button>
+                    <button onclick="app.numpadPress(5)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">5</button>
+                    <button onclick="app.numpadPress(6)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">6</button>
+                    
+                    <button onclick="app.numpadPress(7)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">7</button>
+                    <button onclick="app.numpadPress(8)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">8</button>
+                    <button onclick="app.numpadPress(9)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">9</button>
+
+                    <button onclick="app.numpadBackspace()" class="btn-3d shadow-rose-700/20 bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 py-2 rounded-xl font-black text-base border border-rose-200 dark:border-rose-900 flex items-center justify-center">
+                        <i data-lucide="delete" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="app.numpadPress(0)" class="btn-3d shadow-amber-700/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-white py-2 rounded-xl font-black text-xl border border-slate-200 dark:border-slate-700 active:bg-amber-100">0</button>
+                    <button onclick="app.submitAnswer()" class="btn-3d shadow-emerald-700/30 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-xl font-black text-lg border border-emerald-600 flex items-center justify-center">
+                        <i data-lucide="check" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SCREEN 3: Results Modal -->
+        <section id="screen-result" class="w-full hidden flex-col items-center gap-4 max-w-md mx-auto animate-fade-in">
+            <div class="w-full glass-card rounded-3xl p-6 shadow-xl text-center space-y-4">
+                
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-300 flex items-center justify-center text-3xl shadow-lg shadow-amber-500/20 animate-bounce">
+                    🏆
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-black text-slate-800 dark:text-slate-100" id="result-title">عمل ممتاز يا بطل! 🎉</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">لقد أنهيت التدريب بنجاح</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-amber-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-amber-200 dark:border-slate-700">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-bold block">النقاط الكلية</span>
+                        <span id="final-score" class="number-font text-2xl font-black text-amber-600 dark:text-amber-400">0</span>
+                    </div>
+                    <div class="bg-emerald-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-emerald-200 dark:border-slate-700">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-bold block">إجابات صحيحة</span>
+                        <span id="final-correct" class="number-font text-2xl font-black text-emerald-600 dark:text-emerald-400">0</span>
+                    </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 text-indigo-800 dark:text-indigo-300 text-xs font-bold leading-relaxed" id="feedback-text">
+                    "أنت تتطور بسرعة فائقة! الاستمرار هو سر العبقرية في الحساب الذهني."
+                </div>
+
+                <div class="flex flex-col gap-2 pt-1">
+                    <button onclick="app.restartGame()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black rounded-2xl shadow-md flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>محاولة جديدة بنفس الإعدادات</span>
+                    </button>
+                    <button onclick="app.showHome()" class="w-full py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                        العودة للقائمة الرئيسية
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-2 text-center text-[10px] text-slate-400 dark:text-slate-600 font-semibold">
+        برنامج RH MAS للحساب الذهني للأطفال - أصدقاء العدد 5
+    </footer>
+
+    <!-- App Engine Script -->
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioCtx();
+                }
+            }
+
+            playTone(freq, type, duration, gainVal = 0.1) {
+                if (this.muted) return;
+                this.init();
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            playBeadClick() {
+                if (this.muted) return;
+                this.init();
+                try {
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(850, now);
+                    osc.frequency.exponentialRampToValueAtTime(140, now + 0.035);
+
+                    gain.gain.setValueAtTime(0.28, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.035);
+                } catch(e) {}
+            }
+
+            playClick() {
+                this.playTone(600, 'sine', 0.04, 0.04);
+            }
+
+            playSuccess() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.08, now + idx * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.07);
+                    osc.stop(now + idx * 0.07 + 0.2);
+                });
+            }
+
+            playError() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [220, 175].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.08, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.18);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.18);
+                });
+            }
+        }
+
+        /**
+         * Enhanced Soroban Math Generator supporting All-Rules Mix
+         */
+        class SorobanMathEngine {
+            generateProblem(targetRule, stepsCount) {
+                let attempts = 0;
+                while (attempts < 600) {
+                    attempts++;
+                    const problem = this.tryBuildSequence(targetRule, stepsCount);
+                    if (problem) return problem;
+                }
+                return this.getFallbackSequence(targetRule, stepsCount);
+            }
+
+            tryBuildSequence(targetRule, stepsCount) {
+                const isMix = targetRule === 'mix';
+                const requiredRuleDigit = isMix ? null : parseInt(targetRule.replace('+', ''));
+                
+                const sequence = [];
+                let currValue = Math.floor(Math.random() * 4) + 1; // 1 to 4
+                sequence.push(currValue);
+
+                let ruleAppliedCount = 0;
+
+                for (let i = 1; i < stepsCount; i++) {
+                    const choices = [];
+                    const lowerBeadsActive = currValue % 5;
+                    const upperBeadActive = currValue >= 5;
+
+                    // Evaluate availability for rules +4, +3, +2, +1
+                    const availableRules = [];
+                    if (!upperBeadActive && lowerBeadsActive >= 1) availableRules.push({ val: 4, rule: true });
+                    if (!upperBeadActive && lowerBeadsActive >= 2) availableRules.push({ val: 3, rule: true });
+                    if (!upperBeadActive && lowerBeadsActive >= 3) availableRules.push({ val: 2, rule: true });
+                    if (!upperBeadActive && lowerBeadsActive === 4) availableRules.push({ val: 1, rule: true });
+
+                    if (isMix) {
+                        choices.push(...availableRules);
+                    } else {
+                        const targetRuleChoice = availableRules.find(r => r.val === requiredRuleDigit);
+                        if (targetRuleChoice) choices.push(targetRuleChoice);
+                    }
+
+                    // Direct Addition without Rule
+                    for (let add = 1; add <= 4; add++) {
+                        if (lowerBeadsActive + add <= 4 && (currValue + add <= 9)) {
+                            choices.push({ val: add, rule: false });
+                        }
+                    }
+                    if (!upperBeadActive && currValue + 5 <= 9) {
+                        choices.push({ val: 5, rule: false });
+                    }
+
+                    // Subtractions
+                    for (let sub = 1; sub <= 4; sub++) {
+                        if (lowerBeadsActive >= sub) {
+                            choices.push({ val: -sub, rule: false });
+                        }
+                    }
+                    if (upperBeadActive) {
+                        choices.push({ val: -5, rule: false });
+                    }
+
+                    if (choices.length === 0) return null;
+
+                    // Prioritize rule application
+                    const ruleChoices = choices.filter(c => c.rule);
+                    let chosen;
+                    if (ruleChoices.length > 0 && Math.random() < 0.70) {
+                        chosen = ruleChoices[Math.floor(Math.random() * ruleChoices.length)];
+                    } else {
+                        chosen = choices[Math.floor(Math.random() * choices.length)];
+                    }
+
+                    if (chosen.rule) ruleAppliedCount++;
+                    currValue += chosen.val;
+                    sequence.push(chosen.val);
+                }
+
+                if (ruleAppliedCount === 0) return null;
+
+                const totalAnswer = sequence.reduce((a, b) => a + b, 0);
+                if (totalAnswer < 0 || totalAnswer > 999) return null;
+
+                return { sequence, answer: totalAnswer };
+            }
+
+            getFallbackSequence(targetRule, steps) {
+                let seq;
+                if (targetRule === 'mix') {
+                    seq = [2, 3, 4, -4, 1]; // Mixed sequence fallback
+                } else {
+                    const r = parseInt(targetRule.replace('+', ''));
+                    seq = (r === 4) ? [1, 4, 2] : (r === 3) ? [2, 3, 1] : (r === 2) ? [3, 2, 4] : [4, 1, 3];
+                }
+                while (seq.length < steps) seq.push(1);
+                return { sequence: seq.slice(0, steps), answer: seq.slice(0, steps).reduce((a,b)=>a+b, 0) };
+            }
+        }
+
+        class SorobanApp {
+            constructor() {
+                this.sound = new SoundEngine();
+                this.mathEngine = new SorobanMathEngine();
+
+                this.difficulty = 'easy';
+                this.selectedRule = '+4';
+                this.stepCount = 3;
+                this.abacusTimeMinutes = 3;
+                this.anzanTimeMinutes = 1;
+                this.totalTasksCount = 10;
+
+                this.mode = 'abacus';
+                this.score = 0;
+                this.correctCount = 0;
+                this.currentTaskIndex = 0;
+                this.timer = null;
+                this.timeRemaining = 0;
+                this.currentProblem = null;
+                this.userInput = '';
+                this.anzanInterval = null;
+
+                this.abacusRods = [0, 0, 0]; 
+                this.activeDrag = null;
+
+                this.successQuotes = [
+                    "بطل رائع! إجابة مذهلة! 🌟",
+                    "ممتاز، استمر في التألق! 🚀",
+                    "إجابة عبقرية وسريعة جداً! 🧠⚡",
+                    "أحسنت! أنت أستاذ السوروبان! 🏆"
+                ];
+
+                this.encouragingQuotes = [
+                    "حاول مرة أخرى، أنت أستاذ في الحساب الذهني! 💪",
+                    "لا تقلق، التدريب يصنع العجائب! 🌟",
+                    "اقتربت جداً! التركيز هو مفتاح البطل! 🔑"
+                ];
+            }
+
+            init() {
+                this.setDifficulty('easy');
+                this.setRule('+4');
+                this.setAbacusTime(3);
+                this.setAnzanTime(1);
+                this.setTotalTasks(10);
+                this.updateStepCount(3);
+                this.renderInteractiveAbacus();
+                lucide.createIcons();
+            }
+
+            toggleTheme() {
+                const isDark = document.documentElement.classList.toggle('dark');
+                const icon = document.getElementById('theme-icon');
+                if (isDark) {
+                    icon.setAttribute('data-lucide', 'sun');
+                } else {
+                    icon.setAttribute('data-lucide', 'moon');
+                }
+                lucide.createIcons();
+                this.sound.playClick();
+            }
+
+            toggleSound() {
+                this.sound.muted = !this.sound.muted;
+                const btn = document.getElementById('sound-btn');
+                btn.innerHTML = this.sound.muted 
+                    ? `<i data-lucide="volume-x" class="w-4 h-4 text-rose-500"></i>`
+                    : `<i data-lucide="volume-2" class="w-4 h-4"></i>`;
+                lucide.createIcons();
+            }
+
+            setDifficulty(diff) {
+                this.difficulty = diff;
+                document.querySelectorAll('.diff-btn').forEach(b => {
+                    b.classList.remove('border-amber-500', 'bg-amber-100', 'dark:bg-amber-950/60', 'text-amber-700', 'dark:text-amber-300');
+                    b.classList.add('border-slate-200', 'dark:border-slate-700', 'text-slate-600', 'dark:text-slate-400');
+                });
+                const active = document.getElementById(`diff-${diff}`);
+                active.classList.remove('border-slate-200', 'dark:border-slate-700', 'text-slate-600', 'dark:text-slate-400');
+                active.classList.add('border-amber-500', 'bg-amber-100', 'dark:bg-amber-950/60', 'text-amber-700', 'dark:text-amber-300');
+                this.sound.playClick();
+            }
+
+            setRule(rule) {
+                this.selectedRule = rule;
+                document.querySelectorAll('.rule-btn').forEach(b => {
+                    b.classList.remove('border-purple-500', 'bg-purple-50', 'dark:bg-purple-950/50', 'border-indigo-500');
+                    b.classList.add('border-slate-200', 'dark:border-slate-800');
+                });
+                const active = document.getElementById(`rule-${rule}`);
+                if (active) {
+                    active.classList.remove('border-slate-200', 'dark:border-slate-800');
+                    if (rule === 'mix') {
+                        active.classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-950/50');
+                    } else {
+                        active.classList.add('border-purple-500', 'bg-purple-50', 'dark:bg-purple-950/50');
+                    }
+                }
+                this.sound.playClick();
+            }
+
+            setAbacusTime(mins) {
+                this.abacusTimeMinutes = mins;
+                document.querySelectorAll('.atime-btn').forEach(b => b.classList.remove('opt-btn-active'));
+                document.getElementById(`atime-${mins}`).classList.add('opt-btn-active');
+                document.getElementById('abacus-mode-tag').innerText = `⏱️ ${mins} دقائق`;
+            }
+
+            setAnzanTime(mins) {
+                this.anzanTimeMinutes = mins;
+                document.querySelectorAll('.ftime-btn').forEach(b => b.classList.remove('opt-btn-active'));
+                document.getElementById(`ftime-${mins}`).classList.add('opt-btn-active');
+                document.getElementById('anzan-mode-tag').innerText = `⏱️ ${mins} دقيقة`;
+            }
+
+            setTotalTasks(count) {
+                this.totalTasksCount = count;
+                document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('opt-btn-active'));
+                document.getElementById(`tasks-${count}`).classList.add('opt-btn-active');
+            }
+
+            updateStepCount(val) {
+                this.stepCount = parseInt(val);
+                document.getElementById('step-count-display').innerText = `${val} أرقام`;
+            }
+
+            startGame(mode) {
+                this.sound.playClick();
+                this.mode = mode;
+                this.score = 0;
+                this.correctCount = 0;
+                this.currentTaskIndex = 0;
+                this.userInput = '';
+
+                this.timeRemaining = (mode === 'abacus') ? (this.abacusTimeMinutes * 60) : (this.anzanTimeMinutes * 60);
+
+                document.getElementById('game-score').innerText = '0';
+                document.getElementById('curr-task-num').innerText = '1';
+                document.getElementById('total-task-num').innerText = this.totalTasksCount;
+                document.getElementById('game-mode-badge').innerText = mode === 'abacus' ? 'معداد' : 'خيال (Flash)';
+                
+                const ruleBadgeText = this.selectedRule === 'mix' ? 'مزيج القواعد 🌈' : `${this.selectedRule}`;
+                document.getElementById('game-rule-badge').innerText = ruleBadgeText;
+
+                document.getElementById('screen-home').classList.add('hidden');
+                document.getElementById('screen-result').classList.add('hidden');
+                document.getElementById('screen-game').classList.remove('hidden');
+                document.getElementById('screen-game').classList.add('flex');
+
+                this.resetAbacusBeads();
+                this.startTimer();
+                this.nextProblem();
+            }
+
+            startTimer() {
+                clearInterval(this.timer);
+                this.updateTimerDisplay();
+
+                this.timer = setInterval(() => {
+                    this.timeRemaining--;
+                    this.updateTimerDisplay();
+
+                    if (this.timeRemaining <= 0) {
+                        clearInterval(this.timer);
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            updateTimerDisplay() {
+                const mins = Math.floor(this.timeRemaining / 60);
+                const secs = this.timeRemaining % 60;
+                document.getElementById('game-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            nextProblem() {
+                if (this.currentTaskIndex >= this.totalTasksCount) {
+                    this.endGame();
+                    return;
+                }
+
+                this.currentTaskIndex++;
+                document.getElementById('curr-task-num').innerText = this.currentTaskIndex;
+
+                this.userInput = '';
+                this.updateAnswerDisplay();
+
+                this.currentProblem = this.mathEngine.generateProblem(this.selectedRule, this.stepCount);
+
+                if (this.mode === 'abacus') {
+                    document.getElementById('vertical-math-container').classList.remove('hidden');
+                    document.getElementById('anzan-math-container').classList.add('hidden');
+                    this.renderVerticalStack();
+                } else {
+                    document.getElementById('vertical-math-container').classList.add('hidden');
+                    document.getElementById('anzan-math-container').classList.remove('hidden');
+                    this.runFlashAnzanSequence();
+                }
+            }
+
+            renderVerticalStack() {
+                const container = document.getElementById('vertical-numbers-list');
+                container.innerHTML = '';
+
+                this.currentProblem.sequence.forEach((num, index) => {
+                    const row = document.createElement('div');
+                    row.className = "flex items-center justify-end gap-1.5 w-full";
+                    
+                    if (index === 0) {
+                        row.innerHTML = `<span>${num}</span>`;
+                    } else {
+                        const sign = num > 0 ? '+' : '-';
+                        const absVal = Math.abs(num);
+                        row.innerHTML = `<span class="text-xl font-bold text-amber-500">${sign}</span><span>${absVal}</span>`;
+                    }
+                    container.appendChild(row);
+                });
+            }
+
+            runFlashAnzanSequence() {
+                clearInterval(this.anzanInterval);
+                const display = document.getElementById('anzan-number-display');
+                const currStep = document.getElementById('anzan-step-curr');
+                const totalStep = document.getElementById('anzan-step-total');
+
+                totalStep.innerText = this.currentProblem.sequence.length;
+
+                let speedMs = (this.difficulty === 'medium') ? 1000 : (this.difficulty === 'hard') ? 650 : 1500;
+
+                let idx = 0;
+                display.innerText = "جاهز؟";
+                display.className = "number-font text-3xl font-black text-amber-500";
+
+                setTimeout(() => {
+                    this.anzanInterval = setInterval(() => {
+                        if (idx < this.currentProblem.sequence.length) {
+                            const val = this.currentProblem.sequence[idx];
+                            currStep.innerText = idx + 1;
+                            
+                            display.innerText = val > 0 ? `+${val}` : `${val}`;
+                            display.className = "number-font text-5xl font-black text-purple-600 dark:text-purple-400 animate-bounce-short";
+                            this.sound.playTone(400 + (idx * 50), 'sine', 0.1, 0.05);
+
+                            idx++;
+                        } else {
+                            clearInterval(this.anzanInterval);
+                            display.innerText = "✏️ الإجابة؟";
+                            display.className = "text-xl font-black text-emerald-500 animate-pulse";
+                        }
+                    }, speedMs);
+                }, 800);
+            }
+
+            numpadPress(digit) {
+                if (this.userInput.length >= 3) return;
+                this.sound.playClick();
+                this.userInput += digit.toString();
+                this.updateAnswerDisplay();
+            }
+
+            numpadBackspace() {
+                this.sound.playClick();
+                this.userInput = this.userInput.slice(0, -1);
+                this.updateAnswerDisplay();
+            }
+
+            updateAnswerDisplay() {
+                const box = document.getElementById('user-answer-box');
+                if (this.userInput === '') {
+                    box.innerHTML = `<span class="text-slate-400 dark:text-slate-600 text-xs font-normal font-cairo">الإجابة...</span>`;
+                } else {
+                    box.innerText = this.userInput;
+                }
+            }
+
+            submitAnswer() {
+                if (this.userInput === '') return;
+
+                const numericAnswer = parseInt(this.userInput);
+                if (numericAnswer === this.currentProblem.answer) {
+                    this.sound.playSuccess();
+                    this.score += 10;
+                    this.correctCount++;
+                    document.getElementById('game-score').innerText = this.score;
+
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 30, spread: 60, origin: { y: 0.7 } });
+                    }
+
+                    this.resetAbacusBeads();
+                    this.nextProblem();
+                } else {
+                    this.sound.playError();
+                    const box = document.getElementById('user-answer-box');
+                    box.classList.add('border-red-500', 'bg-red-50', 'dark:bg-red-950/40');
+                    setTimeout(() => {
+                        box.classList.remove('border-red-500', 'bg-red-50', 'dark:bg-red-950/40');
+                        this.userInput = '';
+                        this.updateAnswerDisplay();
+                    }, 400);
+                }
+            }
+
+            confirmQuit() {
+                this.sound.playClick();
+                if (confirm('هل تريد بالتأكيد إنهاء الجلسة والعودة للقائمة؟')) {
+                    clearInterval(this.timer);
+                    clearInterval(this.anzanInterval);
+                    this.showHome();
+                }
+            }
+
+            endGame() {
+                clearInterval(this.timer);
+                clearInterval(this.anzanInterval);
+
+                document.getElementById('screen-game').classList.add('hidden');
+                document.getElementById('screen-game').classList.remove('flex');
+                document.getElementById('screen-result').classList.remove('hidden');
+                document.getElementById('screen-result').classList.add('flex');
+
+                document.getElementById('final-score').innerText = this.score;
+                document.getElementById('final-correct').innerText = `${this.correctCount} / ${this.currentTaskIndex}`;
+
+                const feedbackEl = document.getElementById('feedback-text');
+                if (this.correctCount >= Math.ceil(this.totalTasksCount * 0.6)) {
+                    feedbackEl.innerText = `"${this.successQuotes[Math.floor(Math.random() * this.successQuotes.length)]}"`;
+                } else {
+                    feedbackEl.innerText = `"${this.encouragingQuotes[Math.floor(Math.random() * this.encouragingQuotes.length)]}"`;
+                }
+
+                if (this.correctCount > 0) this.sound.playSuccess();
+            }
+
+            restartGame() {
+                this.startGame(this.mode);
+            }
+
+            showHome() {
+                this.sound.playClick();
+                clearInterval(this.timer);
+                clearInterval(this.anzanInterval);
+
+                document.getElementById('screen-game').classList.add('hidden');
+                document.getElementById('screen-game').classList.remove('flex');
+                document.getElementById('screen-result').classList.add('hidden');
+                document.getElementById('screen-home').classList.remove('hidden');
+            }
+
+            resetAbacusBeads() {
+                this.sound.playBeadClick();
+                this.abacusRods = [0, 0, 0];
+                this.renderInteractiveAbacus();
+            }
+
+            useAbacusValue() {
+                const totalVal = (this.abacusRods[0] * 100) + (this.abacusRods[1] * 10) + this.abacusRods[2];
+                this.userInput = totalVal.toString();
+                this.updateAnswerDisplay();
+                this.sound.playClick();
+            }
+
+            renderInteractiveAbacus() {
+                const container = document.getElementById('abacus-beads-container');
+                if (!container) return;
+                container.innerHTML = '';
+
+                const calculatedValue = (this.abacusRods[0] * 100) + (this.abacusRods[1] * 10) + this.abacusRods[2];
+                const calcDisplay = document.getElementById('abacus-calc-val');
+                if (calcDisplay) calcDisplay.innerText = calculatedValue;
+
+                const rodX = [60, 120, 180];
+
+                rodX.forEach((x, rodIdx) => {
+                    const val = this.abacusRods[rodIdx];
+                    const upperActive = val >= 5;
+                    const lowerCount = val % 5;
+
+                    const upperY = upperActive ? 35 : 15;
+                    const upperGroup = this.createBeadGroup(x, upperY, upperActive, 'upper', rodIdx, 0);
+                    container.appendChild(upperGroup);
+
+                    for (let b = 0; b < 4; b++) {
+                        const isUp = b < lowerCount;
+                        const lowerY = isUp ? (53 + b * 15) : (92 + b * 15);
+                        const lowerGroup = this.createBeadGroup(x, lowerY, isUp, 'lower', rodIdx, b);
+                        container.appendChild(lowerGroup);
+                    }
+                });
+            }
+
+            createBeadGroup(cx, cy, isActive, type, rodIdx, beadIdx) {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('class', 'bead-group');
+
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                const hw = 18;
+                const hh = 6;
+                const points = `${cx-hw},${cy} ${cx},${cy-hh} ${cx+hw},${cy} ${cx},${cy+hh}`;
+                polygon.setAttribute('points', points);
+                polygon.setAttribute('class', 'bead-shape');
+
+                if (isActive) {
+                    polygon.setAttribute('fill', '#f59e0b');
+                    polygon.setAttribute('stroke', '#b45309');
+                } else {
+                    polygon.setAttribute('fill', '#fbbf24');
+                    polygon.setAttribute('stroke', '#d97706');
+                }
+                polygon.setAttribute('stroke-width', '1.5');
+
+                g.appendChild(polygon);
+
+                g.onpointerdown = (e) => {
+                    e.preventDefault();
+                    g.setPointerCapture(e.pointerId);
+                    this.activeDrag = {
+                        startY: e.clientY,
+                        rodIdx: rodIdx,
+                        type: type,
+                        beadIdx: beadIdx
+                    };
+                };
+
+                g.onpointermove = (e) => {
+                    if (!this.activeDrag) return;
+                    e.preventDefault();
+                    const deltaY = e.clientY - this.activeDrag.startY;
+
+                    if (Math.abs(deltaY) > 8) {
+                        this.processBeadDrag(this.activeDrag.rodIdx, this.activeDrag.type, this.activeDrag.beadIdx, deltaY);
+                        this.activeDrag = null;
+                    }
+                };
+
+                g.onpointerup = (e) => {
+                    if (this.activeDrag) {
+                        this.processBeadTap(this.activeDrag.rodIdx, this.activeDrag.type, this.activeDrag.beadIdx);
+                        this.activeDrag = null;
+                    }
+                };
+
+                return g;
+            }
+
+            processBeadDrag(rodIdx, type, beadIdx, deltaY) {
+                if (type === 'upper') {
+                    if (deltaY > 0 && this.abacusRods[rodIdx] < 5) {
+                        this.abacusRods[rodIdx] += 5;
+                        this.sound.playBeadClick();
+                    } else if (deltaY < 0 && this.abacusRods[rodIdx] >= 5) {
+                        this.abacusRods[rodIdx] -= 5;
+                        this.sound.playBeadClick();
+                    }
+                } else {
+                    const currentLower = this.abacusRods[rodIdx] % 5;
+                    const upper = this.abacusRods[rodIdx] >= 5 ? 5 : 0;
+
+                    if (deltaY < 0) {
+                        const targetCount = beadIdx + 1;
+                        if (targetCount > currentLower) {
+                            this.abacusRods[rodIdx] = upper + targetCount;
+                            this.sound.playBeadClick();
+                        }
+                    } else if (deltaY > 0) {
+                        const targetCount = beadIdx;
+                        if (targetCount < currentLower) {
+                            this.abacusRods[rodIdx] = upper + targetCount;
+                            this.sound.playBeadClick();
+                        }
+                    }
+                }
+                this.renderInteractiveAbacus();
+            }
+
+            processBeadTap(rodIdx, type, beadIdx) {
+                if (type === 'upper') {
+                    this.toggleUpperBead(rodIdx);
+                } else {
+                    const currentLower = this.abacusRods[rodIdx] % 5;
+                    const target = (beadIdx + 1 === currentLower) ? beadIdx : beadIdx + 1;
+                    this.setLowerBeads(rodIdx, target);
+                }
+            }
+
+            toggleUpperBead(rodIdx) {
+                this.sound.playBeadClick();
+                if (this.abacusRods[rodIdx] >= 5) {
+                    this.abacusRods[rodIdx] -= 5;
+                } else {
+                    this.abacusRods[rodIdx] += 5;
+                }
+                this.renderInteractiveAbacus();
+            }
+
+            setLowerBeads(rodIdx, count) {
+                this.sound.playBeadClick();
+                const upper = this.abacusRods[rodIdx] >= 5 ? 5 : 0;
+                this.abacusRods[rodIdx] = upper + count;
+                this.renderInteractiveAbacus();
+            }
+        }
+
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new SorobanApp();
+            app.init();
+        });
+    </script>
+</body>
+</html>
